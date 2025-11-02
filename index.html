@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAEI R30M Farm Pilot - Asset-Backed Validation</title>
+    <meta name="description" content="UAEI R30M Farm Pilot - 150 Farmers + 455ha Productive Farm">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* CRITICAL: 16:9 Aspect Ratio Enforcement */
+        .slide-container {
+            width: 100%;
+            max-width: 177.78vh;
+            height: 100%;
+            max-height: 56.25vw;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            overflow: hidden;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(15px, 2vh, 30px) clamp(15px, 2vw, 40px);
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(76, 175, 80, 0.2);
+            border-top: 5px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .slide .loading-overlay.hidden {
+            display: none;
+        }
+
+        .slide-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+        }
+
+        .slide-bg.loaded {
+            opacity: 0.15;
+        }
+
+        .slide-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.75) 100%);
+            z-index: 1;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: clamp(8px, 1.5vh, 20px);
+            color: #fff;
+        }
+
+        h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1.3rem, 3vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: clamp(10px, 2vh, 25px);
+            color: #fff;
+        }
+
+        h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(0.95rem, 1.8vw, 1.5rem);
+            font-weight: 600;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .highlight {
+            color: #4CAF50;
+        }
+
+        /* Layouts */
+        .layout-hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: clamp(30px, 5vh, 80px);
+        }
+
+        .layout-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(15px, 2vh, 35px);
+            flex: 1;
+        }
+
+        .layout-three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: clamp(15px, 2vh, 35px);
+            flex: 1;
+        }
+
+        /* Magazine Cards */
+        .magazine-card {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            border-radius: 12px;
+            padding: clamp(12px, 2vh, 25px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .magazine-card:hover {
+            border-color: #4CAF50;
+            transform: translateX(8px);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+
+        .magazine-card h3 {
+            margin-bottom: clamp(8px, 1.5vh, 15px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .magazine-card i {
+            color: #4CAF50;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .magazine-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: clamp(8px, 1.5vh, 15px);
+        }
+
+        .magazine-card li {
+            padding: clamp(4px, 0.8vh, 8px) 0;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            line-height: 1.5;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .magazine-card li:last-child {
+            border-bottom: none;
+        }
+
+        .magazine-card li strong {
+            color: #4CAF50;
+        }
+
+        /* Risk Comparison Cards */
+        .risk-comparison {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(15px, 2vh, 35px);
+            flex: 1;
+        }
+
+        .risk-card {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 12px;
+            padding: clamp(20px, 3vw, 40px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .risk-card.high-risk {
+            border: 3px solid #F44336;
+        }
+
+        .risk-card.medium-risk {
+            border: 3px solid #FF9800;
+        }
+
+        .risk-card.low-risk {
+            border: 3px solid #4CAF50;
+            transform: scale(1.05);
+        }
+
+        .risk-card:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+
+        .risk-percentage {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            margin: clamp(10px, 2vh, 20px) 0;
+        }
+
+        .high-risk .risk-percentage {
+            color: #F44336;
+        }
+
+        .medium-risk .risk-percentage {
+            color: #FF9800;
+        }
+
+        .low-risk .risk-percentage {
+            color: #4CAF50;
+        }
+
+        /* Star Badge */
+        .star-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            font-weight: 800;
+            font-size: clamp(0.9rem, 1.7vw, 1.2rem);
+            padding: clamp(10px, 2vh, 15px) clamp(20px, 3vw, 30px);
+            border-radius: 8px;
+            margin-top: clamp(20px, 3vh, 30px);
+            display: inline-block;
+        }
+
+        /* Validation Pillars */
+        .validation-pillars {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            gap: clamp(12px, 2vh, 25px);
+            align-items: center;
+            flex: 1;
+        }
+
+        .pillar {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            border-radius: 12px;
+            padding: clamp(12px, 2vh, 25px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .pillar:hover {
+            border-color: #4CAF50;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+
+        .pillar-icon {
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: #4CAF50;
+            margin-bottom: clamp(10px, 2vh, 15px);
+            text-align: center;
+        }
+
+        .pillar h3 {
+            text-align: center;
+            margin-bottom: clamp(10px, 2vh, 15px);
+        }
+
+        .pillar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pillar li {
+            padding: clamp(6px, 1vh, 10px) 0;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            color: #ccc;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .pillar li:last-child {
+            border-bottom: none;
+        }
+
+        .pillar-arrow {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        /* Budget Split */
+        .budget-split {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: clamp(15px, 2vh, 35px);
+            flex: 1;
+        }
+
+        .budget-major, .budget-minor {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            border-radius: 12px;
+            padding: clamp(12px, 2vh, 25px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .budget-major:hover, .budget-minor:hover {
+            border-color: #4CAF50;
+            transform: translateX(8px);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+
+        .farm-details {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 2vh, 20px);
+            margin-top: clamp(10px, 2vh, 20px);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            padding: clamp(10px, 2vh, 15px);
+            border-left: 4px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+        }
+
+        .detail-item strong {
+            color: #4CAF50;
+            font-size: clamp(0.9rem, 1.7vw, 1.2rem);
+            margin-bottom: clamp(4px, 0.8vh, 8px);
+        }
+
+        .detail-item span {
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            color: #ccc;
+        }
+
+        .budget-list {
+            list-style: none;
+            padding: 0;
+            margin-top: clamp(10px, 2vh, 20px);
+        }
+
+        .budget-list li {
+            padding: clamp(8px, 1.5vh, 12px) 0;
+            font-size: clamp(0.85rem, 1.6vw, 1.1rem);
+            color: #ccc;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .budget-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: auto;
+            padding-top: clamp(15px, 2vh, 25px);
+            gap: clamp(8px, 1.5vw, 20px);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: clamp(1.3rem, 2.5vw, 2rem);
+            font-weight: 800;
+            color: #4CAF50;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: clamp(0.75rem, 1.4vw, 1rem);
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        .stat-arrow {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: #4CAF50;
+        }
+
+        /* Criteria Grid */
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: clamp(12px, 2vh, 25px);
+            flex: 1;
+        }
+
+        .criterion-card {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .criterion-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+
+        .criterion-number {
+            width: clamp(40px, 6vw, 60px);
+            height: clamp(40px, 6vw, 60px);
+            border-radius: 50%;
+            background: #4CAF50;
+            color: #000;
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto clamp(10px, 2vh, 20px);
+        }
+
+        .criterion-target {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 800;
+            color: #4CAF50;
+            margin: clamp(8px, 1.5vh, 15px) 0;
+        }
+
+        .criterion-desc {
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        /* Callout Boxes */
+        .callout-box {
+            background: rgba(76, 175, 80, 0.15);
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: clamp(10px, 1.5vh, 15px);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: clamp(12px, 2vh, 20px);
+        }
+
+        .callout-box i {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            color: #4CAF50;
+        }
+
+        .callout-box span {
+            font-size: clamp(0.9rem, 1.7vw, 1.2rem);
+            line-height: 1.4;
+        }
+
+        .decision-gate {
+            background: rgba(76, 175, 80, 0.15);
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: clamp(12px, 2vh, 20px);
+            text-align: center;
+            font-size: clamp(1rem, 1.8vw, 1.3rem);
+            font-weight: 600;
+            margin-top: clamp(12px, 2vh, 20px);
+        }
+
+        /* Contact Info */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(15px, 2.5vh, 25px);
+            align-items: center;
+            text-align: center;
+        }
+
+        .contact-info h3 {
+            font-size: clamp(1.3rem, 2.5vw, 2rem);
+            margin-bottom: clamp(5px, 1vh, 10px);
+        }
+
+        .contact-info p {
+            font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+            color: #ccc;
+            margin: clamp(3px, 0.5vh, 6px) 0;
+        }
+
+        .contact-info i {
+            color: #4CAF50;
+            margin-right: 8px;
+        }
+
+        /* Navigation */
+        .navigation {
+            position: fixed;
+            bottom: clamp(20px, 3vh, 40px);
+            right: clamp(20px, 3vw, 40px);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #4CAF50;
+            color: #fff;
+            padding: clamp(8px, 1.5vh, 12px) clamp(15px, 2.5vw, 25px);
+            border-radius: 8px;
+            font-size: clamp(0.85rem, 1.6vw, 1rem);
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: #4CAF50;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:disabled:hover {
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: clamp(20px, 3vh, 40px);
+            left: clamp(20px, 3vw, 40px);
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #4CAF50;
+            padding: clamp(8px, 1.5vh, 12px) clamp(15px, 2.5vw, 25px);
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 1.7vw, 1.1rem);
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .logo {
+            max-width: clamp(120px, 20vw, 200px);
+            height: auto;
+            margin-bottom: clamp(15px, 3vh, 30px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .layout-two-col,
+            .layout-three-col,
+            .risk-comparison,
+            .validation-pillars,
+            .budget-split {
+                grid-template-columns: 1fr;
+            }
+
+            .pillar-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Hero with Star Badge -->
+        <div class="slide active">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <img class="slide-bg loaded" src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1920" alt="Tractor sunset">
+            <div class="slide-overlay"></div>
+            <div class="slide-content layout-hero">
+                <img class="logo" src="assets/UAEI Logo for dark BG.png" alt="UAEI Logo">
+                <h1>
+                    <span class="highlight">R30M FARM PILOT</span><br>
+                    Asset-Backed Triple Validation
+                </h1>
+                <p style="font-size: clamp(1.1rem, 2vw, 1.5rem); color: #ccc; margin: clamp(10px, 2vh, 20px) 0;">
+                    150 Farmers + 455ha Productive Farm | 6 Months
+                </p>
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-value">R30M</span>
+                        <span class="stat-label">Pilot Investment</span>
+                    </div>
+                    <div class="stat-arrow">→</div>
+                    <div class="stat-item">
+                        <span class="stat-value">13%</span>
+                        <span class="stat-label">Downside Risk</span>
+                    </div>
+                    <div class="stat-arrow">→</div>
+                    <div class="stat-item">
+                        <span class="stat-value">87%</span>
+                        <span class="stat-label">Asset-Backed</span>
+                    </div>
+                </div>
+                <div class="star-badge">★ HIGHEST-RATED PILOT (9.8/10)</div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Risk Comparison -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>Why R30M Farm Pilot is Lowest Risk</h2>
+                <div class="risk-comparison">
+                    <div class="risk-card high-risk">
+                        <h3>R7.5M Pilot</h3>
+                        <div class="risk-percentage">76% Loss</div>
+                        <p>If pilot fails</p>
+                        <small>100% operational expenses</small>
+                    </div>
+                    <div class="risk-card medium-risk">
+                        <h3>R15M Pilot</h3>
+                        <div class="risk-percentage">71% Loss</div>
+                        <p>If pilot fails</p>
+                        <small>100% operational expenses</small>
+                    </div>
+                    <div class="risk-card low-risk">
+                        <h3>R30M Farm Pilot ★</h3>
+                        <div class="risk-percentage">13% Loss</div>
+                        <p>If pilot fails</p>
+                        <small>83% asset-backed (farm)</small>
+                    </div>
+                </div>
+                <div class="callout-box">
+                    <i class="fas fa-shield-alt"></i>
+                    <span><strong>87% of capital preserved in land asset</strong> even in worst-case scenario</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Triple Validation -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <img class="slide-bg loaded" src="https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?w=1920" alt="Farmer crops sunset">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>Triple Validation: Farmers + Farm + Supply</h2>
+                <div class="validation-pillars">
+                    <div class="pillar">
+                        <div class="pillar-icon"><i class="fas fa-users"></i></div>
+                        <h3>150 Farmers</h3>
+                        <ul>
+                            <li>450-600 hectares under management</li>
+                            <li>Technology adoption validation</li>
+                            <li>Credit scoring AI training</li>
+                            <li>Marketplace activity testing</li>
+                        </ul>
+                    </div>
+                    <div class="pillar-arrow">+</div>
+                    <div class="pillar">
+                        <div class="pillar-icon"><i class="fas fa-tractor"></i></div>
+                        <h3>455ha Farm</h3>
+                        <ul>
+                            <li>R25M productive farm acquisition</li>
+                            <li>Anchor supply security</li>
+                            <li>Ongoing revenue during pilot</li>
+                            <li>83% asset-backed collateral</li>
+                        </ul>
+                    </div>
+                    <div class="pillar-arrow">=</div>
+                    <div class="pillar">
+                        <div class="pillar-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3>Proven Model</h3>
+                        <ul>
+                            <li>Farmer validation + farm revenue</li>
+                            <li>Supply chain security demonstrated</li>
+                            <li>Risk minimised to 13%</li>
+                            <li>Path to R508.6M deployment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Budget Breakdown -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>R30M Budget: R25M Farm + R5M Operations</h2>
+                <div class="budget-split">
+                    <div class="budget-major">
+                        <h3><i class="fas fa-farm"></i> Farm Acquisition: R25M (83%)</h3>
+                        <div class="farm-details">
+                            <div class="detail-item">
+                                <strong>455 hectares</strong>
+                                <span>Productive agricultural land (Modimolle/Polokwane area)</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Asset-backed collateral</strong>
+                                <span>Preserves 87% of capital if pilot fails</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Immediate revenue</strong>
+                                <span>Farm generates income during 6-month pilot</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Supply anchor</strong>
+                                <span>Ensures marketplace inventory even with low farmer adoption</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="budget-minor">
+                        <h3><i class="fas fa-cogs"></i> Operational Expenses: R5M (17%)</h3>
+                        <ul class="budget-list">
+                            <li><strong>R1.6M</strong> - Human capital (9 field officers, 3 hub managers)</li>
+                            <li><strong>R1.2M</strong> - Technology (AgriFresh + IoT sensors + AI)</li>
+                            <li><strong>R1.4M</strong> - Agricultural inputs (seeds, fertilisers, equipment)</li>
+                            <li><strong>R600k</strong> - Logistics (3-vehicle fleet)</li>
+                            <li><strong>R200k</strong> - Monitoring and IC reporting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Revenue Hedge (Simplified) -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>Farm Provides Revenue Hedge During Pilot</h2>
+                <div class="layout-two-col">
+                    <div class="magazine-card">
+                        <h3><i class="fas fa-check-circle"></i> Best Case: High Farmer Adoption</h3>
+                        <ul>
+                            <li><strong>150 farmers:</strong> Marketplace transactions + loan repayments</li>
+                            <li><strong>455ha farm:</strong> Commercial agricultural revenue</li>
+                            <li><strong>Outcome:</strong> R508.6M deployment validated + farm revenue bonus</li>
+                        </ul>
+                    </div>
+                    <div class="magazine-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Worst Case: Low Adoption</h3>
+                        <ul>
+                            <li><strong>Farmers underperform:</strong> Technology adoption &lt;85% or defaults &gt;12%</li>
+                            <li><strong>455ha farm continues:</strong> Generates revenue regardless of farmer outcomes</li>
+                            <li><strong>Outcome:</strong> Farm asset worth R21.75M (87% preserved)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout-box">
+                    <i class="fas fa-shield-alt"></i>
+                    <span><strong>Answer to "What if it fails?"</strong> → 455ha farm preserves 87% of capital as productive agricultural asset</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Success Criteria -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <img class="slide-bg loaded" src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=1920" alt="Harvest sunset">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>5 Success Criteria (Pass/Fail Gates)</h2>
+                <div class="criteria-grid">
+                    <div class="criterion-card">
+                        <div class="criterion-number">1</div>
+                        <h3>Technology Adoption</h3>
+                        <p class="criterion-target">≥85%</p>
+                        <p class="criterion-desc">Farmers actively using AgriFresh platform daily</p>
+                    </div>
+                    <div class="criterion-card">
+                        <div class="criterion-number">2</div>
+                        <h3>Farmer Retention</h3>
+                        <p class="criterion-target">≥90%</p>
+                        <p class="criterion-desc">Farmers complete full 6-month season</p>
+                    </div>
+                    <div class="criterion-card">
+                        <div class="criterion-number">3</div>
+                        <h3>Credit Scoring Accuracy</h3>
+                        <p class="criterion-target">≥75%</p>
+                        <p class="criterion-desc">AI model predicts repayment capability</p>
+                    </div>
+                    <div class="criterion-card">
+                        <div class="criterion-number">4</div>
+                        <h3>Yield Improvement</h3>
+                        <p class="criterion-target">≥30%</p>
+                        <p class="criterion-desc">Conservation agriculture delivers gains vs. provincial averages</p>
+                    </div>
+                    <div class="criterion-card">
+                        <div class="criterion-number">5</div>
+                        <h3>Default Rate</h3>
+                        <p class="criterion-target">≤12%</p>
+                        <p class="criterion-desc">Financial sustainability proven (industry average)</p>
+                    </div>
+                </div>
+                <div class="decision-gate">
+                    <strong>Decision Gate:</strong> Pass ≥4 of 5 → R508.6M deployment authorised
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Why This Wins -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>Why R30M Pilot for IDC/DBSA?</h2>
+                <div class="layout-two-col">
+                    <div class="magazine-card">
+                        <h3><i class="fas fa-trophy"></i> Highest Success Probability</h3>
+                        <ul>
+                            <li><strong>Triple validation:</strong> Farmers + Farm + Supply chain</li>
+                            <li><strong>Revenue during pilot:</strong> Farm generates income immediately</li>
+                            <li><strong>Supply guarantee:</strong> Marketplace inventory secured</li>
+                            <li><strong>Asset-backed:</strong> 87% downside protection</li>
+                            <li><strong>Proven team:</strong> 20+ years agricultural expertise</li>
+                        </ul>
+                    </div>
+                    <div class="magazine-card">
+                        <h3><i class="fas fa-handshake"></i> Perfect Funder Alignment</h3>
+                        <ul>
+                            <li><strong>IDC:</strong> Industrial development + asset-based financing</li>
+                            <li><strong>DBSA:</strong> Infrastructure investment + job creation</li>
+                            <li><strong>Land Bank:</strong> Agricultural land acquisition mandate</li>
+                            <li><strong>Government:</strong> Food security + rural development</li>
+                            <li><strong>DFIs:</strong> Proven downside protection</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout-box">
+                    <i class="fas fa-star"></i>
+                    <span><strong>9.8/10 rating:</strong> Highest probability of success with lowest downside risk</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Comparison Table (Simplified) -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>Pilot Comparison Summary</h2>
+                <div class="layout-three-col" style="align-items: stretch;">
+                    <div class="magazine-card">
+                        <h3 style="text-align: center;">R7.5M Pilot</h3>
+                        <ul>
+                            <li><strong>Farmers:</strong> 50</li>
+                            <li><strong>Risk:</strong> 76% loss if fails</li>
+                            <li><strong>Asset backing:</strong> None</li>
+                            <li><strong>Supply security:</strong> Low</li>
+                            <li><strong>Rating:</strong> 6.5/10</li>
+                        </ul>
+                    </div>
+                    <div class="magazine-card">
+                        <h3 style="text-align: center;">R15M Pilot</h3>
+                        <ul>
+                            <li><strong>Farmers:</strong> 100</li>
+                            <li><strong>Risk:</strong> 71% loss if fails</li>
+                            <li><strong>Asset backing:</strong> None</li>
+                            <li><strong>Supply security:</strong> Medium</li>
+                            <li><strong>Rating:</strong> 7.2/10</li>
+                        </ul>
+                    </div>
+                    <div class="magazine-card" style="border-color: #4CAF50; transform: scale(1.05);">
+                        <h3 style="text-align: center; color: #4CAF50;">R30M Farm Pilot ★</h3>
+                        <ul>
+                            <li><strong>Farmers:</strong> 150</li>
+                            <li><strong>Risk:</strong> 13% loss if fails</li>
+                            <li><strong>Asset backing:</strong> R25M farm</li>
+                            <li><strong>Supply security:</strong> High</li>
+                            <li><strong>Rating:</strong> 9.8/10</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <span><strong>Clear winner:</strong> R30M pilot combines highest validation with lowest risk</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Contact -->
+        <div class="slide">
+            <div class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            <img class="slide-bg loaded" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920" alt="Wheat sunset">
+            <div class="slide-overlay"></div>
+            <div class="slide-content layout-hero">
+                <h2>Ready to Partner?</h2>
+                <div class="contact-info">
+                    <h3>Keletso Kungwane</h3>
+                    <p>Operations Director</p>
+                    <p><i class="fas fa-phone"></i> +27 84 478 8872</p>
+                    <p><i class="fas fa-envelope"></i> keletsok@gmail.com</p>
+                    <br>
+                    <h3>Kutlwano Holdings (Pty) Ltd</h3>
+                    <p>Registration: 2017/103109/07</p>
+                    <p>Level 1 B-BBEE Contributor</p>
+                    <p><i class="fas fa-globe"></i> www.kutlwanoholdings.co.za</p>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-value">R30M</span>
+                        <span class="stat-label">Pilot Investment</span>
+                    </div>
+                    <div class="stat-arrow">→</div>
+                    <div class="stat-item">
+                        <span class="stat-value">13%</span>
+                        <span class="stat-label">Downside Risk</span>
+                    </div>
+                    <div class="stat-arrow">→</div>
+                    <div class="stat-item">
+                        <span class="stat-value">87%</span>
+                        <span class="stat-label">Asset Protected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">9</span>
+    </div>
+    <div class="navigation">
+        <button class="nav-btn" id="prev-btn">
+            <i class="fas fa-arrow-left"></i> Prev
+        </button>
+        <button class="nav-btn" id="next-btn">
+            Next <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentSlideSpan = document.getElementById('current-slide');
+        const totalSlidesSpan = document.getElementById('total-slides');
+
+        totalSlidesSpan.textContent = totalSlides;
+
+        function showSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            currentSlide = index;
+            currentSlideSpan.textContent = currentSlide + 1;
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) showSlide(currentSlide - 1);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevBtn.click();
+            else if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextBtn.click();
+            }
+        });
+
+        showSlide(0);
+
+        document.querySelectorAll('.slide-bg').forEach(img => {
+            img.addEventListener('load', function() {
+                this.classList.add('loaded');
+                const overlay = this.parentElement.querySelector('.loading-overlay');
+                if (overlay) overlay.classList.add('hidden');
+            });
+            if (img.complete) {
+                img.classList.add('loaded');
+                const overlay = img.parentElement.querySelector('.loading-overlay');
+                if (overlay) overlay.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
