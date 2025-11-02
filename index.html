@@ -569,48 +569,42 @@
             filter: drop-shadow(0 0 20px rgba(76, 175, 80, 0.6)) drop-shadow(0 0 40px rgba(76, 175, 80, 0.4));
         }
 
-        /* Contact Slide Layout */
+        /* Contact Slide Layout - 3 Columns */
         .contact-layout {
             display: grid;
-            grid-template-columns: auto 1fr;
-            gap: clamp(30px, 5vw, 60px);
-            align-items: center;
+            grid-template-columns: auto 1fr 1fr;
+            gap: clamp(20px, 3vw, 40px);
+            align-items: start;
             width: 100%;
+            margin-bottom: clamp(15px, 2.5vh, 25px);
         }
 
         .contact-logo {
-            max-width: clamp(150px, 25vw, 250px);
+            max-width: clamp(120px, 18vw, 180px);
             height: auto;
             filter: drop-shadow(0 0 20px rgba(76, 175, 80, 0.6)) drop-shadow(0 0 40px rgba(76, 175, 80, 0.4));
+            align-self: center;
         }
 
-        .contact-content {
+        .contact-column {
             display: flex;
             flex-direction: column;
-            gap: clamp(15px, 2.5vh, 25px);
+            gap: clamp(6px, 1.2vh, 12px);
         }
 
-        /* Contact Info */
-        .contact-info {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(8px, 1.5vh, 15px);
-            align-items: flex-start;
-            text-align: left;
-        }
-
-        .contact-info h3 {
+        .contact-column h3 {
             font-size: clamp(1.2rem, 2.3vw, 1.8rem);
             margin-bottom: clamp(5px, 1vh, 10px);
+            color: #fff;
         }
 
-        .contact-info p {
+        .contact-column p {
             font-size: clamp(0.85rem, 1.6vw, 1.1rem);
             color: #ccc;
             margin: clamp(2px, 0.4vh, 5px) 0;
         }
 
-        .contact-info i {
+        .contact-column i {
             color: #4CAF50;
             margin-right: 8px;
         }
@@ -1032,37 +1026,36 @@
             <img class="slide-bg loaded" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920" alt="Wheat sunset">
             <div class="slide-overlay"></div>
             <div class="slide-content">
+                <h2 style="margin-bottom: clamp(15px, 2.5vh, 25px); text-align: center;">Ready to Partner?</h2>
                 <div class="contact-layout">
                     <img class="contact-logo" src="assets/UAEI Logo for dark BG.png" alt="UAEI Logo">
-                    <div class="contact-content">
-                        <h2 style="margin-bottom: clamp(10px, 2vh, 20px);">Ready to Partner?</h2>
-                        <div class="contact-info">
-                            <h3>Keletso Kungwane</h3>
-                            <p>Operations Director</p>
-                            <p><i class="fas fa-phone"></i> +27 84 478 8872</p>
-                            <p><i class="fas fa-envelope"></i> keletsok@gmail.com</p>
-                            <br>
-                            <h3>Kutlwano Holdings (Pty) Ltd</h3>
-                            <p>Registration: 2017/103109/07</p>
-                            <p>Level 1 B-BBEE Contributor</p>
-                            <p><i class="fas fa-globe"></i> www.kutlwanoholdings.co.za</p>
-                        </div>
-                        <div class="stats-bar">
-                            <div class="stat-item">
-                                <span class="stat-value">R30M</span>
-                                <span class="stat-label">Pilot Investment</span>
-                            </div>
-                            <div class="stat-arrow">→</div>
-                            <div class="stat-item">
-                                <span class="stat-value">13%</span>
-                                <span class="stat-label">Downside Risk</span>
-                            </div>
-                            <div class="stat-arrow">→</div>
-                            <div class="stat-item">
-                                <span class="stat-value">87%</span>
-                                <span class="stat-label">Asset Protected</span>
-                            </div>
-                        </div>
+                    <div class="contact-column">
+                        <h3>Keletso Kungwane</h3>
+                        <p>Operations Director</p>
+                        <p><i class="fas fa-phone"></i> +27 84 478 8872</p>
+                        <p><i class="fas fa-envelope"></i> keletsok@gmail.com</p>
+                    </div>
+                    <div class="contact-column">
+                        <h3>Kutlwano Holdings (Pty) Ltd</h3>
+                        <p>Registration: 2017/103109/07</p>
+                        <p>Level 1 B-BBEE Contributor</p>
+                        <p><i class="fas fa-globe"></i> www.kutlwanoholdings.co.za</p>
+                    </div>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-value">R30M</span>
+                        <span class="stat-label">Pilot Investment</span>
+                    </div>
+                    <div class="stat-arrow">→</div>
+                    <div class="stat-item">
+                        <span class="stat-value">13%</span>
+                        <span class="stat-label">Downside Risk</span>
+                    </div>
+                    <div class="stat-arrow">→</div>
+                    <div class="stat-item">
+                        <span class="stat-value">87%</span>
+                        <span class="stat-label">Asset Protected</span>
                     </div>
                 </div>
             </div>
